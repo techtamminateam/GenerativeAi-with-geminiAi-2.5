@@ -16,18 +16,17 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the rest of the application
 COPY . .
 
-# Set environment variables - ensure API_KEY is set at runtime
+# Set non-sensitive environment variables 
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 ENV PYTHONUNBUFFERED=1
-ENV API_KEY=""  
 
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Command to run the FastAPI application. TODO - Update with timeout and other settings as later
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the FastAPI application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "600", "--timeout-graceful-shutdown", "600"]

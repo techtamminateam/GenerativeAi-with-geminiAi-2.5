@@ -5,21 +5,12 @@ import glob
 import time
 import logging
 import hashlib
-import shutil
 from collections import OrderedDict
 from logging.handlers import TimedRotatingFileHandler
-from typing import Dict, Optional
+from typing import Dict
 import warnings
 import tiktoken
 from tqdm import tqdm
-from pathlib import Path
-
-# FastAPI imports
-from fastapi import FastAPI, UploadFile, File, HTTPException, Security, Depends
-from fastapi.security.api_key import APIKeyHeader
-from fastapi.responses import JSONResponse
-import uvicorn
-from starlette.status import HTTP_403_FORBIDDEN
 
 import pdfplumber
 from pdf2image import convert_from_path
@@ -36,35 +27,6 @@ from dotenv import load_dotenv
 # ---------------- ENV SETUP ----------------
 load_dotenv(".env")
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-# ---------------- FastAPI SETUP ----------------
-app = FastAPI(
-    title="Insurance Document Processor API",
-    description="API for processing insurance documents and extracting relevant information",
-    version="1.0.0"
-)
-
-# Security configuration
-API_KEY_NAME = "X-API-Key"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
-
-async def get_api_key(
-    api_key_header: str = Security(api_key_header),
-):
-    if api_key_header is None:
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="API Key header is missing"
-        )
-    
-    if api_key_header != os.getenv("API_KEY"):
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Invalid API Key"
-        )
-    
-    return api_key_header
-
-# Create necessary directories
-# os.makedirs("uploads", exist_ok=True) # change if needed
 
 # ---------------- Gemini CONFIG ----------------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -302,64 +264,8 @@ def main(file_path, business, data_points_map, prompt_map):
 
     return normalize_dict_keys(regex_results)
 
-# ---------------- API ENDPOINTS ----------------
-# Args:
-#      file: PDF file to process
-#      business_type: Type of business insurance document (default: business_owner) 
-# Returns JSON response with extracted information
-@app.post("/process-document/")
-async def process_document(
-    file: UploadFile = File(...),
-    business_type: str = "business_owner", # change as needed
-    api_key: str = Depends(get_api_key)
-):
-    if not file.filename.endswith('.pdf'): # change if needed
-        raise HTTPException(status_code=400, detail="Only PDF files are supported")
-    
-    if business_type not in data_points_map:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Unsupported business type. Supported types: {list(data_points_map.keys())}"
-        )
-    
-    try:
-        # Save the uploaded file
-        file_path = Path("uploads") / file.filename
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        # Process the document
-        result = main(
-            str(file_path),
-            business_type,
-            data_points_map,
-            prompt_map
-        )
-        
-        # Clean up the uploaded file
-        os.remove(file_path)
-        
-        return JSONResponse(content=result)
-    
-    except Exception as e:
-        logger.error(f"Error processing document: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Get a list of supported business types for document processing.
-@app.get("/supported-business-types/")
-async def get_supported_business_types(
-    api_key: str = Depends(get_api_key)
-):
-    return list(data_points_map.keys())
-
-# Health check endpoint.
-@app.get("/health/")
-async def health_check():
-    return {"status": "healthy"}
-
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    import argparse
     from utils.data_points import (
         cyber_data_points,
         general_liability_data_points,
@@ -376,11 +282,10 @@ if __name__ == "__main__":
         prompt_template_package
     )
 
-    content_folder = "BusinessOwners" # change as needed
+    content_folder = "BusinessOwners"
     business = "business_owner"  # Change as needed
     pdf_files = glob.glob(os.path.join(content_folder, "*pdf"))
 
-    # Common configuration
     prompt_map = {
         "cyber": prompt_template_cyber,
         "general": prompt_template_general,
@@ -403,7 +308,6 @@ if __name__ == "__main__":
 
     for file_path in pdf_files:
         try:
-            #remove this after testing
             file_path = 'BusinessOwners/24_25_renewal_bop_policy_84sbabh4373.pdf'
             result = main(file_path, business, data_points_map, prompt_map)
             save_dict_to_json(result, file_path)
