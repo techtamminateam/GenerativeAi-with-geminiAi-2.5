@@ -39,24 +39,24 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # ---------------- FastAPI SETUP ----------------
 app = FastAPI(
-    title="Insurance Document Processor API",
-    description="API for processing insurance documents and extracting relevant information",
+    title="Policy Checking API",
+    description="API for checking insurance policies and extracting relevant information",
     version="1.0.0"
 )
 
 # Security configuration
-API_KEY_NAME = "X-API-Key"
+API_KEY_NAME = os.getenv("MY_SECRET_API_KEY", "")  # empty if not set
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 async def get_api_key(
     api_key_header: str = Security(api_key_header),
 ):
-    if api_key_header is None:
+    if api_key_header is "":
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN, detail="API Key header is missing"
         )
     
-    if api_key_header != os.getenv("API_KEY"):
+    if api_key_header != os.getenv("MY_SECRET_API_KEY"):
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN, detail="Invalid API Key"
         )
@@ -64,7 +64,7 @@ async def get_api_key(
     return api_key_header
 
 # Create necessary directories
-# os.makedirs("uploads", exist_ok=True) # change if needed
+os.makedirs("uploads", exist_ok=True) # change if needed
 
 # ---------------- Gemini CONFIG ----------------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -305,7 +305,7 @@ def main(file_path, business, data_points_map, prompt_map):
 # ---------------- API ENDPOINTS ----------------
 # Args:
 #      file: PDF file to process
-#      business_type: Type of business insurance document (default: business_owner) 
+#      business_type: Type of business insurance document (change as needed)
 # Returns JSON response with extracted information
 @app.post("/process-document/")
 async def process_document(
@@ -359,7 +359,6 @@ async def health_check():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    import argparse
     from utils.data_points import (
         cyber_data_points,
         general_liability_data_points,
