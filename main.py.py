@@ -30,7 +30,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # ---------------- Gemini CONFIG ----------------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel("models/gemini-2.5-flash")
+gemini_model = genai.GenerativeModel("models/gemini-2.5-pro")
 
 # ---------------- Encoding ----------------
 encoding = tiktoken.encoding_for_model("gpt-4-32k")
@@ -71,7 +71,7 @@ def clean_text_for_llm(text: str) -> str:
     text = text.replace("✔", "[CHECKED]").replace("☑", "[CHECKED]").replace("☐", "[UNCHECKED]")
     return text.strip()
 
-def split_text(text, max_tokens=3000, buffer=400):
+def split_text(text, max_tokens=4000, buffer=400):
     tokens = encoding.encode(text)
     chunks = []
     for i in range(0, len(tokens), max_tokens - buffer):
@@ -231,9 +231,12 @@ def main(file_path, business, data_points_map, prompt_map):
     # Split and create vectorstore if too many tokens
     if pdf_tokens > 40000:
         logger.info("Splitting text due to token limit")
-        texts = split_text(large_text)
+        max_tokens = 4000
+        if business == "package":
+            max_tokens = 5000
+        texts = split_text(large_text,max_tokens,buffer=400)
         vectorstore = create_vectorstore(texts)
-        retriever = vectorstore.as_retriever(search_kwargs={"k": 15})
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
         docs = retriever.get_relevant_documents("insurance policy document")
         combined_text = "\n\n".join([d.page_content for d in docs])
     else:
@@ -251,10 +254,20 @@ def main(file_path, business, data_points_map, prompt_map):
         prompt_token_count = len(encoding.encode(prompt_text))
         logger.info(f"📨 Sending {prompt_token_count} tokens to Gemini for fallback extraction")
 
-        response = gemini_model.generate_content(
+        if business in ["cyber","general_liability","comercial_auto"]:
+            gemini_flash_model = genai.GenerativeModel("models/gemini-2.5-flash")
+            logger.info(f"Extracting using Gemini 2.5-flash for {business} business")
+            response = gemini_flash_model.generate_content(
+                ["JSON only", prompt_text],
+                generation_config={"response_mime_type": "application/json"}
+            )
+        else:
+            response = gemini_model.generate_content(
             ["JSON only", prompt_text],
-            generation_config={"response_mime_type": "application/json"}
-        )
+            generation_config={
+                "response_mime_type": "application/json",
+            })
+            logger.info(f"Extracting using {gemini_model} for {business} business")
         try:
             gemini_data = json.loads(response.text.replace("```json", '').replace("```", ''))
             for k in missing_keys:
@@ -282,8 +295,8 @@ if __name__ == "__main__":
         prompt_template_package
     )
 
-    content_folder = "BusinessOwners"
-    business = "business_owner"  # Change as needed
+    content_folder = "package"  # Change as needed
+    business = "package"  # Change as needed
     pdf_files = glob.glob(os.path.join(content_folder, "*pdf"))
 
     prompt_map = {
@@ -293,7 +306,7 @@ if __name__ == "__main__":
         "general_liability": prompt_template_general_liability,
         "property": prompt_template_property,
         "business_owner": prompt_template_business_owner,
-        "package": prompt_template_package
+        "package": prompt_template_business_owner
     }
 
     data_points_map = {
@@ -312,4 +325,3 @@ if __name__ == "__main__":
             save_dict_to_json(result, file_path)
         except Exception as e:
             logger.error(f"❌ Failed {file_path}: {e}", exc_info=True)
-        break
