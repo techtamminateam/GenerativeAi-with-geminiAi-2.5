@@ -1,0 +1,196 @@
+{
+    "nameinsured": [
+        "Cape Wiggery"
+    ],
+    "othernamedinsured(dba)": null,
+    "additionalinsured": null,
+    "mailingaddress": [
+        "89 S Plaza Way, Cape Girardeau MO 63701"
+    ],
+    "policynumber": [
+        "WBP2073420 00"
+    ],
+    "policyperiod": [
+        "06/01/2025 To 06/01/2026"
+    ],
+    "issuingcompany": [
+        "Wesco Insurance Company"
+    ],
+    "premium": {
+        "Business Owners Policy": 551.0,
+        "Policy Premium": 551.0,
+        "Deposit Premium": 551.0,
+        "Taxes and Surcharges": 0.0,
+        "Total Deposit Premium": 551.0
+    },
+    "paidinfulldiscount": null,
+    "miscellaneouspremium": null,
+    "location": [
+        "89 S Plaza Way, Cape Girardeau MO 63701"
+    ],
+    "generalliability": {
+        "Medical expenses": 5000,
+        "Damage to rented premises": 50000,
+        "Each Occurrence": 1000000,
+        "Personal And Advt Injury": null,
+        "Products or Completed Operations Aggregate": 3000000,
+        "General Aggregate": 2000000,
+        "Deductible": "None",
+        "Hired Or Non Owned Auto": null,
+        "Schedule of Hazards Rating Info": {
+            "Premises": 1,
+            "Building": 1,
+            "Class Code": "59993",
+            "Description": "Clothing or Wearing Apparel - Retail - Wigs",
+            "Class": "Joisted Masonry (Code 2)",
+            "Protection Class": 3,
+            "Territory": 703
+        },
+        "Additional Interest": null
+    },
+    "employeebenefitsliability": null,
+    "directorsandofficers": null,
+    "cyber": {
+        "Cyber Security Liability Section": null
+    },
+    "professionalliability": null,
+    "eplionpolicy": null,
+    "errorsandomissionsonpolicy": null,
+    "terrorism": null,
+    "workexclusion": null,
+    "liabilitylocationsmatchpropertylocationsifapplicable": true,
+    "property": {
+        "Building Value": null,
+        "Business Personal Property Limit": 43200,
+        "Business Income Limit": null,
+        "Improvements and Betterments": null,
+        "Wind And Hail": null,
+        "Property Deductible": 1000,
+        "Co Insurance": null,
+        "Valuation": null,
+        "Is Equipment Breakdown Listed": "Included",
+        "Building Ordinance Or Law Listed Cov A": null,
+        "Building Ordinance Demolition Cost Cov B": null,
+        "Building Ordinance Inc Cost Of Construction Cov C": null,
+        "Additional Interests": null
+    },
+    "propertyterrorism": null,
+    "inlandmarinedetails": null,
+    "equipmentschedule": null,
+    "deductibles": [],
+    "losspayee": null,
+    "rentalequipmentfromothers": null,
+    "rentalequipmenttoothers": null,
+    "installationfloater": null,
+    "inlandmarineterrorism": null,
+    "umbrellalimits": null,
+    "underlyingpolicies": null,
+    "policyexclusions": [
+        "Earthquake Coverage is not included",
+        "Exclusion - Access Or Disclosure Of Confidential Or Personal Material Or Information",
+        "Cyber Incident Liability Exclusion",
+        "Exclusion - Asbestos",
+        "Exclusion - Lead",
+        "Fungi or Bacteria Exclusion"
+    ],
+    "additionalcoverage(s)": [],
+    "formsandendorsements": [
+        {
+            "Coverage Form Number": "BOP 260100",
+            "Edition Date": "01/10",
+            "Title": "EQUIPMENT BREAKDOWN COVERAGE"
+        },
+        {
+            "Coverage Form Number": "BOP BP0003",
+            "Edition Date": "01/06",
+            "Title": "BUSINESSOWNERS COVERAGE FORM"
+        },
+        {
+            "Coverage Form Number": "BOP BP0111",
+            "Edition Date": "08/05",
+            "Title": "MISSOURI CHANGES"
+        },
+        {
+            "Coverage Form Number": "BOP BP0157",
+            "Edition Date": "10/08",
+            "Title": "MISSOURI CHANGES \u2013 POLLUTION EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "BOP BP0159",
+            "Edition Date": "08/08",
+            "Title": "WATER EXCLUSION ENDORSEMENT"
+        },
+        {
+            "Coverage Form Number": "BOP BP0417",
+            "Edition Date": "07/02",
+            "Title": "EMPLOYMENT-RELATED PRACTICES EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "BOP BP0492",
+            "Edition Date": "07/02",
+            "Title": "TOTAL POLLUTION EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "BOP BP0524",
+            "Edition Date": "01/15",
+            "Title": "EXCLUSION OF CERTIFIED ACTS OF TERRORISM"
+        },
+        {
+            "Coverage Form Number": "BOP BP0577",
+            "Edition Date": "01/06",
+            "Title": "FUNGI OR BACTERIA EXCLUSION (LIABILITY)"
+        },
+        {
+            "Coverage Form Number": "BOP BP0601",
+            "Edition Date": "01/07",
+            "Title": "EXCLUSION OF LOSS DUE TO VIRUS OR BACTERIA"
+        },
+        {
+            "Coverage Form Number": "BOP BP990070",
+            "Edition Date": "04/24",
+            "Title": "EXCLUSION \u2013 ACCESS OR DISCLOSURE OF CONFIDENTIAL OR PERSONAL INFORMATION AND DATA-RELATED LIABILITY \u2013 LIMITED BODILY INJURY EXCEPTION NOT INCLUDED"
+        },
+        {
+            "Coverage Form Number": "BOP BP990076",
+            "Edition Date": "03/20",
+            "Title": "EXCLUSION - COMMUNICABLE DISEASE"
+        },
+        {
+            "Coverage Form Number": "BOP BP990078",
+            "Edition Date": "09/20",
+            "Title": "CYBER INCIDENT EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "BOP BP990104",
+            "Edition Date": "11/22",
+            "Title": "PROFESSIONAL LIABILITY EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "BOP BP990106",
+            "Edition Date": "05/23",
+            "Title": "EXCLUSION \u2013 PERFLUOROALKYL AND POLYFLUOROALKYL SUBSTANCES (PFAS)"
+        },
+        {
+            "Coverage Form Number": "BOP BP990108",
+            "Edition Date": "12/23",
+            "Title": "CYBER INCIDENT LIABILITY EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "IL IL990044",
+            "Edition Date": "01/17",
+            "Title": "ASBESTOS EXCLUSION"
+        },
+        {
+            "Coverage Form Number": "IL IL990048",
+            "Edition Date": "01/17",
+            "Title": "EXCLUSION - LEAD"
+        }
+    ],
+    "endorsements": [
+        "Exclusion - Asbestos",
+        "Exclusion - Lead",
+        "Cyber Incident Liability Exclusion",
+        "Fungi or Bacteria Exclusion",
+        "Exclusion \u2013 Access Or Disclosure Of Confidential Or Personal Material Or Information"
+    ]
+}
