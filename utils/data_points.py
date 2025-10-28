@@ -11,7 +11,6 @@ def cyber_data_points():
         'Premium',
         'Paid In Full Discount',
         'Miscellaneous Premium',
-        'Additional Interest',
         'Additional Coverage(s)',
         'Forms and Endorsements',
         'Endorsements',
@@ -45,14 +44,7 @@ def general_liability_data_points():
         'Paid In Full Discount',
         'Miscellaneous Premium',
         'Location',
-        'Each Occurrence limit',
-        'General Aggregate Limit',
-        'Products or Completed Operations Aggregate',
-        'Personal And Advertising Injury Limit',
-        'Damage to Rented Premises Limit',
-        'Medical Payments Limit',
-        'Deductible',
-        'Hazards Rating info',
+        'General Liability',
         'Employee Benefit Liability Coverage',
         'Hired And Non owned Coverage',
         'Directors and Officers',
@@ -146,12 +138,3 @@ def business_owner_data_points():
     # Convert list to dict with default regex (catch-all)
     data_points_dict = {field: r"([\s\S]*?)" for field in fields}
     return data_points_dict
-
-def forms_hunting_points():
-    return [
-        "Forms and Endorsements complete list",
-        "All form numbers, titles, and dates",
-        "Endorsements list",
-        "All insurance forms, notices, state filings",
-        "Any text matching pattern like AA-123 (MM-YY)"
-    ]
