@@ -13,9 +13,11 @@ import warnings
 import tiktoken
 from tqdm import tqdm
 from pathlib import Path
+import platform
+from typing import List
 
 # FastAPI imports
-from fastapi import FastAPI, UploadFile, File, HTTPException, Security, Depends
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security, Depends
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -45,23 +47,50 @@ app = FastAPI(
 )
 
 # Security configuration
-API_KEY_NAME = os.getenv("MY_SECRET_API_KEY", "")  # empty if not set
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+API_KEY_HEADER_NAME = "x-api-key"
+API_KEY_VALUE = os.getenv("MY_SECRET_API_KEY", "")
 
-async def get_api_key(
-    api_key_header: str = Security(api_key_header),
-):
-    if api_key_header is "":
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="API Key header is missing"
-        )
-    
-    if api_key_header != os.getenv("MY_SECRET_API_KEY"):
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Invalid API Key"
-        )
-    
+api_key_header = APIKeyHeader(name=API_KEY_HEADER_NAME, auto_error=False)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    if not api_key_header:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="API key missing")
+    if API_KEY_VALUE and api_key_header != API_KEY_VALUE:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid API Key")
     return api_key_header
+
+
+# ---------------- DATA POINTS AND PROMPT MAP ----------------
+from utils.data_points import (
+    cyber_data_points, general_liability_data_points,
+    business_owner_data_points, comercial_auto_data_points
+)
+from utils.query import (
+    prompt_template_cyber, prompt_template_general,
+    prompt_template_commercial_auto, prompt_template_general_liability,
+    prompt_template_property, prompt_template_business_owner, prompt_template_package
+)
+
+prompt_map = {
+    "cyber": prompt_template_cyber,
+    "general": prompt_template_general,
+    "comercial_auto": prompt_template_commercial_auto,
+    "general_liability": prompt_template_general_liability,
+    "property": prompt_template_property,
+    "business_owner": prompt_template_business_owner,
+    "package": prompt_template_business_owner,
+}
+
+data_points_map = {
+    "cyber": cyber_data_points,
+    "general": business_owner_data_points,
+    "comercial_auto": comercial_auto_data_points,
+    "general_liability": general_liability_data_points,
+    "property": cyber_data_points,
+    "business_owner": business_owner_data_points,
+    "package": business_owner_data_points,
+}
+
 
 # Create necessary directories
 os.makedirs("uploads", exist_ok=True) # change if needed
@@ -198,7 +227,8 @@ def extract_with_regex(text, data_points):
 def text_extract_from_pdf(pdf_path: str) -> str:
     page_texts: Dict[int, str] = {}
     seen_image_hashes = set()
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if platform.system() == "Windows":
+        pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -323,7 +353,7 @@ def main(file_path, business, data_points_map, prompt_map):
 @app.post("/process-document/")
 async def process_document(
     file: UploadFile = File(...),
-    business_type: str = "business_owner", # change as needed
+    business_type: str = Form(..., description="Pick one from /supported-business-types/"),
     api_key: str = Depends(get_api_key)
 ):
     if not file.filename.endswith('.pdf'): # change if needed
@@ -372,51 +402,12 @@ async def health_check():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    from utils.data_points import (
-        cyber_data_points,
-        general_liability_data_points,
-        business_owner_data_points,
-        comercial_auto_data_points
-    )
-    from utils.queryy import (
-        prompt_template_cyber,
-        prompt_template_general,
-        prompt_template_commercial_auto,
-        prompt_template_general_liability,
-        prompt_template_property,
-        prompt_template_business_owner,
-        prompt_template_package
-    )
-
     content_folder = "package"  # Change as needed
     business = "package"  # Change as needed
     pdf_files = glob.glob(os.path.join(content_folder, "*pdf"))
 
-    # Common configuration
-    prompt_map = {
-        "cyber": prompt_template_cyber,
-        "general": prompt_template_general,
-        "comercial_auto": prompt_template_commercial_auto,
-        "general_liability": prompt_template_general_liability,
-        "property": prompt_template_property,
-        "business_owner": prompt_template_business_owner,
-        "package": prompt_template_business_owner
-    }
-
-    data_points_map = {
-        "cyber": cyber_data_points,
-        "general": business_owner_data_points,
-        "comercial_auto": comercial_auto_data_points,
-        "general_liability": general_liability_data_points,
-        "property": cyber_data_points,
-        "business_owner": business_owner_data_points,
-        "package": business_owner_data_points
-    }
-
     for file_path in pdf_files:
         try:
-            #remove this after testing
-            file_path = 'BusinessOwners/24_25_renewal_bop_policy_84sbabh4373.pdf'
             result = main(file_path, business, data_points_map, prompt_map)
             save_dict_to_json(result, file_path)
         except Exception as e:
