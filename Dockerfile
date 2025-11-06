@@ -1,13 +1,14 @@
-# Use Python 3.9 as base image
+# Use Python 3.11 as base image
 FROM python:3.11-slim
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr tesseract-ocr-eng \
     poppler-utils \
     libgl1 \
     libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/* # need to add cv2??? look into this also requirements file as well
+    libsm6 libxext6 libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -16,7 +17,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
 COPY . .

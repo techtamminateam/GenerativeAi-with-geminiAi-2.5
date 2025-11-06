@@ -163,13 +163,13 @@ def save_dict_to_json(data, output_path):
         json_path = f"{base_path}_structured.json"
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-        logger.info(f"✅ Saved structured JSON to {json_path}")
+        logger.info(f"Saved structured JSON to {json_path}")
         return json_path
     else:
         txt_path = f"{base_path}_extracted.txt"
         with open(txt_path, "w", encoding="utf-8") as f:
             f.write(str(data))
-        logger.info(f"📝 Saved extracted text to {txt_path}")
+        logger.info(f"Saved extracted text to {txt_path}")
         return txt_path
 
 def load_extracted_text(output_path: str) -> str:
@@ -227,7 +227,11 @@ def extract_with_regex(text, data_points):
 def text_extract_from_pdf(pdf_path: str) -> str:
     page_texts: Dict[int, str] = {}
     seen_image_hashes = set()
-    if platform.system() == "Windows":
+
+    tess_cmd = os.getenv("TESSERACT_CMD")
+    if tess_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tess_cmd
+    elif platform.system() == "Windows":
         pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
     try:
@@ -279,7 +283,7 @@ def text_extract_from_pdf(pdf_path: str) -> str:
                 page_texts[page_num] = "\n".join(segments)
 
     except Exception as e:
-        logger.error(f"❌ Failed to process {pdf_path}: {e}")
+        logger.error(f"Failed to process {pdf_path}: {e}")
         raise
 
     return "\n".join(page_texts[p] for p in sorted(page_texts.keys()))
@@ -320,7 +324,7 @@ def main(file_path, business, data_points_map, prompt_map):
         prompt_text = f"You are an insurance data extractor. Fill missing fields: {missing_keys}\n\n{user_prompt}"
 
         prompt_token_count = len(encoding.encode(prompt_text))
-        logger.info(f"📨 Sending {prompt_token_count} tokens to Gemini for fallback extraction")
+        logger.info(f"Sending {prompt_token_count} tokens to Gemini for fallback extraction")
 
         if business in ["cyber","general_liability","comercial_auto"]:
             gemini_flash_model = genai.GenerativeModel("models/gemini-2.5-flash")
@@ -411,4 +415,4 @@ if __name__ == "__main__":
             result = main(file_path, business, data_points_map, prompt_map)
             save_dict_to_json(result, file_path)
         except Exception as e:
-            logger.error(f"❌ Failed {file_path}: {e}", exc_info=True)
+            logger.error(f"Failed {file_path}: {e}", exc_info=True)

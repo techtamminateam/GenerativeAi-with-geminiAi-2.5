@@ -1,0 +1,10 @@
+2025-11-05 14:16:39,034 - INFO - Processing uploads\24_25_bop_renewal_policy_image_84sbaal8ctc__3_331.pdf
+2025-11-05 15:16:42,062 - INFO - Original PDF tokens: 293023
+2025-11-05 15:16:42,063 - INFO - Splitting text due to token limit
+2025-11-05 15:18:26,880 - INFO - Extracting using genai.GenerativeModel(
+    model_name='models/gemini-2.5-pro',
+    generation_config={},
+    safety_settings={},
+    tools=None,
+    system_instruction=None,
+) for business_owner business
