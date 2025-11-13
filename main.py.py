@@ -30,7 +30,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # ---------------- Gemini CONFIG ----------------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel(model_name="models/gemini-2.5-pro",generation_config={"temperature": 0.0})
+gemini_model_name = os.getenv("GEMINI_MODEL")
+gemini_model = genai.GenerativeModel(model_name=gemini_model_name,generation_config={"temperature": 0.0})
 
 # ---------------- Encoding ----------------
 encoding = tiktoken.encoding_for_model("gpt-4-32k")
@@ -255,8 +256,8 @@ def main(file_path, business, data_points_map, prompt_map):
         logger.info(f"📨 Sending {prompt_token_count} tokens to Gemini for fallback extraction")
 
         if business in ["cyber","general_liability","comercial_auto"]:
-            gemini_flash_model = genai.GenerativeModel("models/gemini-2.5-pro",generation_config={"temperature": 0.0})
-            logger.info(f"Extracting using Gemini 2.5-flash for {business} business")
+            gemini_flash_model = genai.GenerativeModel(model_name=gemini_model_name,generation_config={"temperature": 0.0})
+            logger.info(f"Extracting using {gemini_model_name} for {business} business")
             response = gemini_flash_model.generate_content(
                 ["JSON only", prompt_text],
                 generation_config={"response_mime_type": "application/json"}
@@ -325,4 +326,5 @@ if __name__ == "__main__":
             save_dict_to_json(result, file_path)
         except Exception as e:
             logger.error(f"❌ Failed {file_path}: {e}", exc_info=True)
+        break
         
