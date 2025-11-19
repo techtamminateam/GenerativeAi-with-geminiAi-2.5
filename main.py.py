@@ -116,15 +116,21 @@ def load_extracted_text(output_path: str) -> str:
 
 # ---------------- IMAGE PREPROCESSING + HYBRID OCR ----------------
 def preprocess_image_for_ocr(pil_img):
-    """Enhance image for OCR using denoising and adaptive thresholding."""
     img_cv = np.array(pil_img)
-    gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-    gray = cv2.fastNlMeansDenoising(gray, h=30)
+    if len(img_cv.shape) == 3:  # RGB
+        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = img_cv
+
+    # Optional: skip denoising for clean scans
+    gray = cv2.fastNlMeansDenoising(gray, h=20)  
+
     thresh = cv2.adaptiveThreshold(
         gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY, 35, 11
+        cv2.THRESH_BINARY, 25, 10
     )
     return Image.fromarray(thresh)
+
 
 def hybrid_ocr(pil_img):
     """
@@ -134,9 +140,7 @@ def hybrid_ocr(pil_img):
     - psm 11: sparse text (scattered info)
     """
     configs = [
-        "--oem 1 --psm 4 -l eng",
         "--oem 1 --psm 6 -l eng",
-        "--oem 1 --psm 11 -l eng"
     ]
 
     best_text = ""
@@ -149,13 +153,12 @@ def hybrid_ocr(pil_img):
 # ---------------- REGEX EXTRACTION ----------------
 def extract_with_regex(text, data_points):
     results = {}
-    for key, pattern in data_points.items():
-        try:
-            match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE | re.DOTALL)
-            results[key] = match.group(1).strip() if match else None
-        except Exception:
-            results[key] = None
+    compiled_patterns = {k: re.compile(p, re.IGNORECASE | re.DOTALL) for k, p in data_points.items()}
+    for key, pattern in compiled_patterns.items():
+        match = pattern.search(text)
+        results[key] = match.group(1).strip() if match else None
     return results
+
 
 # ---------------- PDF TEXT EXTRACTION ----------------
 def text_extract_from_pdf(pdf_path: str) -> str:
@@ -169,14 +172,14 @@ def text_extract_from_pdf(pdf_path: str) -> str:
                 page_num = page.page_number
                 segments = [f"[PAGE {page_num} START]"]
 
-                # Digital text
+                # ---------------- Digital Text ----------------
                 raw_text = page.extract_text(x_tolerance=0.5, y_tolerance=1.5, layout=True)
-                if raw_text:
+                if raw_text and raw_text.strip():
                     text_lines = [clean_text_for_llm(line) for line in raw_text.splitlines() if line.strip()]
                     if text_lines:
                         segments.append("[TEXT] " + " ".join(text_lines))
 
-                # Tables
+                # ---------------- Tables ----------------
                 tables = page.extract_tables()
                 if tables:
                     for t_idx, table in enumerate(tables, start=1):
@@ -186,9 +189,10 @@ def text_extract_from_pdf(pdf_path: str) -> str:
                                 row_text = " | ".join([clean_text_for_llm(cell) if cell else "" for cell in row])
                                 segments.append(f"  [ROW {r_idx}] {row_text}")
 
-                # OCR for images (Hybrid)
-                if page.images:
-                    img = convert_from_path(pdf_path, dpi=300, first_page=page_num, last_page=page_num)[0]
+                # ---------------- OCR for Scanned Pages ----------------
+                if not raw_text or raw_text.strip() == "":
+                    # Page likely scanned → do OCR
+                    img = page.to_image(resolution=100).original  # Faster than convert_from_path
                     img_hash = hash_image(img)
                     if img_hash not in seen_image_hashes:
                         seen_image_hashes.add(img_hash)
@@ -207,6 +211,7 @@ def text_extract_from_pdf(pdf_path: str) -> str:
                         logger.info(f"OCR skipped for page {page_num} (duplicate image)")
 
                 segments.append(f"[PAGE {page_num} END]")
+
                 # Remove duplicates and store
                 segments = list(OrderedDict.fromkeys(segments))
                 page_texts[page_num] = "\n".join(segments)
@@ -296,8 +301,8 @@ if __name__ == "__main__":
         prompt_template_package
     )
 
-    content_folder = "cyber"  # Change as needed
-    business = "cyber"  # Change as needed
+    content_folder = "BusinessOwners"  # Change as needed
+    business = "business_owner"  # Change as needed
     pdf_files = glob.glob(os.path.join(content_folder, "*pdf"))
 
     prompt_map = {
