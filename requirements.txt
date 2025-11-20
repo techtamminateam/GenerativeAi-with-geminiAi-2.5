@@ -18,3 +18,4 @@ tqdm
 numpy
 pillow
 requests
+pymupdf
