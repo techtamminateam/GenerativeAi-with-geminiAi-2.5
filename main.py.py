@@ -383,7 +383,9 @@ if __name__ == "__main__":
         cyber_data_points,
         general_liability_data_points,
         business_owner_data_points,
-        comercial_auto_data_points
+        comercial_auto_data_points,
+        workers_compensation_points,
+        property_data_points
     )
     from utils.queryy import (
         prompt_template_cyber,
@@ -392,14 +394,15 @@ if __name__ == "__main__":
         prompt_template_general_liability,
         prompt_template_property,
         prompt_template_business_owner,
-        prompt_template_package
+        prompt_template_package,
+        prompt_template_workers_compensation
     )
 
-    content_folder = "BusinessOwners"  # Change as needed
-    business = "business_owner"  # Change as needed
+    content_folder = "package"  # Change as needed
+    business = "package"  # Change as needed
 
     # Example: you can put a glob pattern or a list of files
-    pdf_files = glob.glob(os.path.join(content_folder, "*pdf"))
+    pdf_files = glob.glob(os.path.join(content_folder, "Package 4.6.2025 Renewal Dec Policy# BKS57204580 Insured Copy.pdf"))
 
     prompt_map = {
         "cyber": prompt_template_cyber,
@@ -408,7 +411,8 @@ if __name__ == "__main__":
         "general_liability": prompt_template_general_liability,
         "property": prompt_template_property,
         "business_owner": prompt_template_business_owner,
-        "package": prompt_template_business_owner
+        "package": prompt_template_package,
+        "workers_comp": prompt_template_workers_compensation
     }
 
     data_points_map = {
@@ -416,9 +420,10 @@ if __name__ == "__main__":
         "general": business_owner_data_points,
         "comercial_auto": comercial_auto_data_points,
         "general_liability": general_liability_data_points,
-        "property": cyber_data_points,
+        "property": property_data_points,
         "business_owner": business_owner_data_points,
-        "package": business_owner_data_points
+        "package": business_owner_data_points,
+        "workers_comp": workers_compensation_points
     }
 
     for file_path in pdf_files:
@@ -427,4 +432,4 @@ if __name__ == "__main__":
             save_dict_to_json(result, file_path)
         except Exception as e:
             logger.error(f"❌ Failed {file_path}: {e}", exc_info=True)
-        break
+        
