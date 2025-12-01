@@ -107,7 +107,17 @@ def business_owner_data_points():
         'Paid In Full Discount',
         'Miscellaneous Premium',
         'Location',
-        'General Liability',
+        'General Aggregate',
+        'Products or Completed Operations Aggregate',
+        'Personal And Advt Injury',
+        'Medical expenses',
+        'Damage to rented premises',
+        'Each Occurrence',
+        'Deductible',
+        'Hired Or Non Owned Auto',
+        'Advance Premium',
+        'Additional Interest',
+        "Schedule of Hazards Rating Info",
         'Employee Benefits Liability',
         'Directors and Officers',
         'Cyber',
@@ -117,7 +127,18 @@ def business_owner_data_points():
         'Terrorism',
         'Work Exclusion',
         'Liability locations match property locations if applicable',
-        'Property',
+        'Building Value',
+        'Business Personal Property Limit',
+        'Business Income Limit',
+        'Improvements and Betterments',
+        'Wind And Hail',
+        'Property Deductible',
+        'Co Insurance',
+        'Valuation',
+        'Is Equipment Breakdown Listed',
+        'Building Ordinance Or Law Listed Cov A',
+        'Building Ordinance Demolition Cost Cov B',
+        'Building Ordinance Inc Cost Of Construction Cov C',
         'Property Terrorism',
         'Inland Marine Details',
         'Equipment Schedule',
@@ -136,5 +157,80 @@ def business_owner_data_points():
     ]
 
     # Convert list to dict with default regex (catch-all)
+    data_points_dict = {field: r"([\s\S]*?)" for field in fields}
+    return data_points_dict
+
+def forms_hunting_points():
+    return [
+        "Forms and Endorsements complete list",
+        "All form numbers, titles, and dates",
+        "Endorsements list",
+        "All insurance forms, notices, state filings",
+        "Any text matching pattern like AA-123 (MM-YY)"
+    ]
+
+def property_data_points():
+    fields = [
+        'Name Insured',
+        'Other Named Insured',
+        'Additional Insured',
+        'Mailing Address',
+        'Policy Number',
+        'Policy Period',
+        'Issuing Company',
+        'Premium',
+        'Paid In Full Discount',
+        'Miscellaneous Premium',
+        'Location',
+        'Building Value',
+        'Improvements And Betterments',
+        'Business Personal Property Limit',
+        'Business Income Limit',
+        'Wind and Hail',
+        'Deductible',
+        'Co Insurance',
+        'Valuation',
+        'Is Equipment Breakdown Listed',
+        'Building Ordinance Or Law Listed Cov A',
+        'Building Ordinance Demolition Cost Cov B',
+        'Building Ordinance Inc Cost Of Construction Cov C',
+        'Terrorism',
+        'Exclusions',
+        'Additional Interest',
+        'Additional Coverage',
+        'Forms And Endorsements',
+        'Endorsements'
+    ]
+    data_points_dict = {field: r"([\s\S]*?)" for field in fields}
+    return data_points_dict
+    
+def workers_compensation_points():
+    fields = [
+        'Name Insured',
+        'Other Named Insured',
+        'Additional Insured',
+        'Mailing Address',
+        'Policy Number',
+        'Policy Period',
+        'Issuing Company',
+        'Premium',
+        'Paid In Full Discount',
+        'Miscellaneous Premium',
+        'Location',
+        'FEIN',
+        'Coverage States',
+        'Other States',
+        'Employers Limits',
+        'Rating Info',
+        'Experience Mod',
+        'Changes in Credits',
+        'Members Excluded',
+        'Terrorism',
+        'Exclusions',
+        'Additional Interest',
+        'Additional Coverage',
+        'Forms And Endorsements',
+        'Endorsements'
+    ]
     data_points_dict = {field: r"([\s\S]*?)" for field in fields}
     return data_points_dict
